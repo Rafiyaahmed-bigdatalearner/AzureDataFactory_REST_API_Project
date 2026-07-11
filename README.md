@@ -15,18 +15,31 @@ This project focuses on the **data ingestion layer** of an ETL pipeline and demo
 ## Current Implementation
 
 ```text
-             REST API
-          (ReqRes Users API)
-                  |
-                  |
-                  ▼
-        Azure Data Factory
-          Copy Activity
-                  |
-                  |
-                  ▼
-        Azure Blob Storage
-       (Delimited Text File)
+            REST API (Source)
+        |
+        |
+Azure Data Factory
+(Copy Activity)
+        |
+        |
+Azure Blob Storage
+(Bronze Layer - Raw Data)
+        |
+        |
+Transformation Layer
+(PySpark / Python / Mapping Data Flow)
+        |
+        |
+Curated Data (Silver/Gold Layers)(Future Enhancements)
+        |
+        |
+Analytics / Reporting
+
+
+
+
+
+
 ```
 
 ---
