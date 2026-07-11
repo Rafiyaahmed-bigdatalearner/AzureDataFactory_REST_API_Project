@@ -142,11 +142,11 @@ The Copy Activity performs:
 
 # Future Enhancements (Production Pipeline Design)
 
-The current project implements the ingestion layer. The following enhancements can extend it into a complete end-to-end data engineering solution.
+The current project implements the ingestion layer and Transformation layer-Implemented data cleansing transformations including whitespace removal, email standardization, name formatting, duplicate removal, and metadata enrichment. The following enhancements can extend it into a complete end-to-end data engineering solution.
 
 ## 1. Data Transformation Layer
 
-Add Azure Data Factory Mapping Data Flow to clean and transform the raw data.
+ Azure Data Factory Mapping Data Flow to clean and transform the raw data.
 
 Planned transformations:
 
