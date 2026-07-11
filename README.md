@@ -2,139 +2,61 @@
 
 ## Project Overview
 
-This project demonstrates how to build a cloud-based data ingestion pipeline using **Azure Data Factory (ADF)**.
+This project demonstrates the development of a cloud-based ETL pipeline using **Azure Data Factory (ADF)** to ingest, store, and transform data from an external REST API source.
 
-The pipeline extracts user information from a REST API (**ReqRes API**) using an Azure Data Factory **Copy Activity** and stores the extracted data in **Azure Blob Storage** as a delimited text file.
+The pipeline extracts user information from the **ReqRes REST API** using Azure Data Factory **Copy Activity**, stores the raw data in **Azure Blob Storage**, and applies basic data cleansing transformations using Python.
 
-This project focuses on the **data ingestion layer** of an ETL pipeline and demonstrates how Azure Data Factory can connect to external APIs and store data in Azure cloud storage.
+This project focuses on building the foundation of a scalable data engineering workflow by implementing the **data ingestion layer** and a basic **transformation layer**.
 
 ---
 
 # Architecture
 
-## Current Implementation
-
-```text
-            REST API (Source)
-        |
-        |
-Azure Data Factory
-(Copy Activity)
-        |
-        |
-Azure Blob Storage
-(Bronze Layer - Raw Data)
-        |
-        |
-Transformation Layer
-(PySpark / Python / Mapping Data Flow)
-        |
-        |
-Curated Data (Silver/Gold Layers)(Future Enhancements)
-        |
-        |
-Analytics / Reporting
-
-
-
-
-
+## Implemented Pipeline
 
 ```
+                 REST API
+              (ReqRes API)
+                    |
+                    |
+                    ▼
+          Azure Data Factory
+             Copy Activity
+                    |
+                    |
+                    ▼
+          Azure Blob Storage
+          Bronze Layer (Raw Data)
+                    |
+                    |
+                    ▼
+          transformations.py
+        Data Cleansing Layer
+                    |
+                    |
+                    ▼
+          Clean Processed Dataset
+```
+
+## Pipeline Screenshot
+
+![Azure Data Factory Pipeline](pipeline1.png)
 
 ---
 
-# Source
+# Data Source
 
-**REST API**
+## REST API
+
+Endpoint:
 
 ```
 https://reqres.in/api/users?page=2
 ```
 
-The API provides sample user data in JSON format.
+The ReqRes API provides sample user information in JSON format.
 
----
-
-# Destination
-
-**Azure Blob Storage**
-
-* File Format: Delimited Text
-* Storage Layer: Raw Data Storage
-
----
-
-# Data Fields Extracted
-
-The pipeline extracts the following fields from the API response:
-
-| Field      | Description            |
-| ---------- | ---------------------- |
-| id         | User identifier        |
-| email      | User email address     |
-| first_name | User first name        |
-| avatar     | User profile image URL |
-
----
-
-# Tools & Technologies Used
-
-* Azure Data Factory
-* Azure Blob Storage
-* REST API
-* JSON
-* Copy Activity
-* Linked Services
-* Datasets
-
----
-
-# How the Pipeline Works
-
-1. Azure Data Factory connects to the REST API using an HTTP connection.
-2. A GET request is sent to the ReqRes API endpoint.
-3. The API returns user information in JSON format.
-4. ADF Copy Activity extracts the required fields:
-
-   * id
-   * email
-   * first_name
-   * avatar
-5. The extracted data is converted into a delimited text format.
-6. The output file is stored in Azure Blob Storage.
-
----
-
-# Pipeline Components
-
-## Linked Services
-
-The pipeline uses:
-
-* REST API Linked Service
-* Azure Blob Storage Linked Service
-
-## Datasets
-
-Configured datasets for:
-
-* REST API JSON source
-* Blob Storage text file destination
-
-## Copy Activity
-
-The Copy Activity performs:
-
-* Data extraction
-* Field mapping
-* Data movement from API to cloud storage
-
----
-
-# Sample Data Flow
-
-### Source JSON
+Example response:
 
 ```json
 {
@@ -145,42 +67,131 @@ The Copy Activity performs:
 }
 ```
 
-### Stored Output
+---
 
-```text
+# Data Destination
+
+## Azure Blob Storage
+
+The extracted API data is stored in Azure Blob Storage.
+
+Storage details:
+
+| Property        | Description             |
+| --------------- | ----------------------- |
+| Storage Service | Azure Blob Storage      |
+| Data Layer      | Bronze Layer (Raw Data) |
+| File Format     | Delimited Text          |
+
+Example output:
+
+```
 1,george.bluth@reqres.in,George,https://reqres.in/img/faces/1-image.jpg
 ```
 
 ---
 
-# Future Enhancements (Production Pipeline Design)
+# Data Fields Extracted
 
-The current project implements the ingestion layer and Transformation layer-Implemented data cleansing transformations including whitespace removal, email standardization, name formatting, duplicate removal, and metadata enrichment. The following enhancements can extend it into a complete end-to-end data engineering solution.
+| Field      | Description            |
+| ---------- | ---------------------- |
+| id         | Unique user identifier |
+| email      | User email address     |
+| first_name | User first name        |
+| avatar     | User profile image URL |
 
-## 1. Data Transformation Layer
+---
 
- Azure Data Factory Mapping Data Flow to clean and transform the raw data.
+# Technologies Used
 
-Planned transformations:
+## Azure Services
 
-| Transformation    | Description                               |
-| ----------------- | ----------------------------------------- |
-| Remove duplicates | Keep unique user records                  |
-| Trim spaces       | Clean unwanted whitespace                 |
-| Standardize email | Convert emails to lowercase               |
-| Format names      | Convert names to proper case              |
-| Data validation   | Check missing or invalid values           |
-| Add audit columns | Add load timestamp and source information |
+* Azure Data Factory
+* Azure Blob Storage
 
-Example:
+## Data Engineering Tools
 
-Before:
+* REST API Integration
+* ETL Pipeline Development
+* Data Transformation
+* Data Lake Architecture Concepts
+
+## Azure Data Factory Components
+
+* Copy Activity
+* Linked Services
+* Datasets
+
+## Programming
+
+* Python
+
+## Data Formats
+
+* JSON
+* Delimited Text
+
+---
+
+# Pipeline Workflow
+
+The pipeline executes the following steps:
+
+### 1. API Connection
+
+Azure Data Factory connects to the ReqRes REST API using an HTTP linked service.
+
+### 2. Data Extraction
+
+ADF sends a GET request to the API endpoint and receives user data in JSON format.
+
+### 3. Data Ingestion
+
+Azure Data Factory Copy Activity extracts the required fields:
+
+```
+id
+email
+first_name
+avatar
+```
+
+### 4. Data Storage
+
+The extracted data is converted into a delimited text format and stored in Azure Blob Storage.
+
+### 5. Data Transformation
+
+The raw data is processed using Python transformations to improve data quality and prepare it for downstream usage.
+
+---
+
+# Transformation Layer (Implemented)
+
+The `transformations.py` script performs basic data cleansing operations on the extracted dataset.
+
+Implemented transformations:
+
+| Transformation        | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| Remove whitespace     | Removes unnecessary spaces from text fields    |
+| Email standardization | Converts email addresses into lowercase format |
+| Name formatting       | Converts names into proper case                |
+| Duplicate removal     | Removes duplicate records                      |
+| Data validation       | Handles missing or invalid values              |
+| Metadata enrichment   | Adds source system and load timestamp          |
+
+---
+
+# Transformation Example
+
+## Before Transformation
 
 | id | email                                       | first_name |
 | -- | ------------------------------------------- | ---------- |
 | 1  | [GEORGE@REQRES.IN](mailto:GEORGE@REQRES.IN) | george     |
 
-After:
+## After Transformation
 
 | user_id | email                                       | first_name | source_system | load_date  |
 | ------- | ------------------------------------------- | ---------- | ------------- | ---------- |
@@ -188,46 +199,58 @@ After:
 
 ---
 
-# Future Production Architecture
+# Future Production Enhancements
 
-```text
-                    REST API
-                       |
-                       ▼
-              Azure Data Factory
-                 Copy Activity
-                       |
-                       ▼
-             Azure Blob Storage
-                  Raw Layer
-                       |
-                       ▼
-          Azure Data Factory Data Flow
-              Transformation Layer
-                       |
-                       ▼
-             Azure Data Lake Storage
-                Curated Layer
-                       |
-                       ▼
-            Azure Synapse Analytics
-                Data Warehouse
-                       |
-                       ▼
-                  Power BI
-             Analytics & Reporting
+The current project implements REST API ingestion and basic transformation logic.
+
+The following enhancements can extend this solution into a production-scale data engineering platform.
+
+## Advanced Transformation
+
+* Azure Data Factory Mapping Data Flow
+* Azure Databricks with PySpark
+* Delta Lake implementation
+* Advanced data quality checks
+
+## Data Lake Architecture
+
+Future layered architecture:
+
+```
+REST API
+   |
+   ▼
+Azure Data Factory
+   |
+   ▼
+Azure Blob Storage
+Bronze Layer
+   |
+   ▼
+Transformation Layer
+ADF Data Flow / PySpark
+   |
+   ▼
+Silver Layer
+Cleaned Data
+   |
+   ▼
+Gold Layer
+Analytics Data
+   |
+   ▼
+Power BI Reporting
 ```
 
----
+## Pipeline Improvements
 
-# Future Scheduling & Monitoring
+Planned enhancements:
 
-Planned improvements:
-
-* Configure Azure Data Factory Triggers for scheduled execution.
-* Add pipeline monitoring and logging.
-* Implement error handling and retry policies.
-* Add data quality checks.
+* Configure ADF scheduled triggers
+* Add pipeline monitoring and logging
+* Implement retry and failure handling
+* Add automated validation checks
+* Implement CI/CD deployment practices
 
 ---
 
@@ -235,12 +258,33 @@ Planned improvements:
 
 Sensitive information is not stored in this repository.
 
-The following items are excluded:
+Excluded:
 
 * API credentials
 * Azure connection strings
-* Access keys
+* Storage account keys
 * Authentication details
+
+---
+
+# Repository Structure
+
+```
+AzureDataFactory_REST_API_Project
+
+│
+├── README.md
+│   └── Project documentation
+│
+├── pipeline1.json.txt
+│   └── Azure Data Factory pipeline definition
+│
+├── pipeline1.png
+│   └── Azure Data Factory pipeline screenshot
+│
+└── transformations.py
+    └── Python data cleansing transformations
+```
 
 ---
 
@@ -250,9 +294,11 @@ This project demonstrates:
 
 ✅ REST API data ingestion using Azure Data Factory
 ✅ Cloud data storage using Azure Blob Storage
-✅ Data pipeline development using Copy Activity
+✅ ETL pipeline development using Copy Activity
+✅ Python-based data cleansing transformations
 ✅ Azure service integration
-✅ Foundation for building a complete ETL/ELT data platform
+✅ Data lake architecture concepts
+✅ Foundation for scalable cloud data engineering solutions
 
 ---
 
